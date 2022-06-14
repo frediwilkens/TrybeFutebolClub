@@ -13,7 +13,7 @@ User.init({
   username: STRING,
   role: STRING,
   email: STRING,
-  password:STRING
+  password: STRING,
 }, {
   underscored: true,
   sequelize: db,
