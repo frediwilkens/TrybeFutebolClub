@@ -1,5 +1,6 @@
 import Team from '../database/models/team';
 import Match from '../database/models/match';
+import MatchInProgress from '../interfaces/MatchInProgress';
 
 class MatchService {
   public getAll = async () => {
@@ -23,6 +24,19 @@ class MatchService {
     });
 
     return matches;
+  };
+
+  public create = async (match: MatchInProgress) => {
+    const { homeTeam, homeTeamGoals, awayTeam, awayTeamGoals, inProgress } = match;
+    const createdMatch = await Match.create({
+      homeTeam,
+      homeTeamGoals,
+      awayTeam,
+      awayTeamGoals,
+      inProgress,
+    });
+
+    return createdMatch;
   };
 }
 
