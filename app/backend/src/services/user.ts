@@ -1,6 +1,9 @@
 import * as Bcrypt from 'bcryptjs';
+import * as fs from 'fs/promises';
+import * as jwt from 'jsonwebtoken';
 import Token from '../utilities/Token';
 import User from '../database/models/user';
+import TokenPayload from '../interfaces/TokenPayload';
 
 class UserService {
   public login = async (email: string, password: string) => {
@@ -14,7 +17,7 @@ class UserService {
 
     const { id, username, role } = userFound;
 
-    const token = await Token.create({ id });
+    const token = await Token.create({ username, email, role });
 
     return {
       user: { id, username, role, email },
@@ -22,12 +25,16 @@ class UserService {
     };
   };
 
-  public validate = async (id: number) => {
-    const userFound = await User.findByPk(id);
+  public validate = async (token: string) => {
+    const superSecret = await fs.readFile('jwt.evaluation.key', 'utf-8');
 
-    if (!userFound) return null;
-
-    return userFound.role;
+    try {
+      const decode = jwt.verify(token, superSecret) as TokenPayload;
+      return decode;
+    } catch {
+      const errorMessage: TokenPayload = { message: 'Invalid token' };
+      return errorMessage;
+    }
   };
 }
 

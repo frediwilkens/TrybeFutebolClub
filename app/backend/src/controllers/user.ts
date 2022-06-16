@@ -19,13 +19,15 @@ class UserController {
   };
 
   public validate = async (req: Request, res: Response) => {
-    const { userId } = req;
+    const { authorization: token } = req.headers;
 
-    const userRole = await this.userService.validate(userId);
+    if (!token) return res.status(401).json({ message: 'Token not found' });
 
-    if (!userRole) return res.status(400).end();
+    const validatedUserRole = await this.userService.validate(token);
 
-    return res.status(200).send(userRole);
+    if (validatedUserRole.message) return res.status(401).json(validatedUserRole);
+
+    return res.status(200).send(validatedUserRole.role);
   };
 }
 
