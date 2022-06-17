@@ -24,10 +24,21 @@ class MatchController {
   public create = async (req: Request, res: Response) => {
     const { homeTeam, homeTeamGoals, awayTeam, awayTeamGoals, inProgress } = req.body;
 
-    const createdMatch = await this.matchService
-      .create({ homeTeam, homeTeamGoals, awayTeam, awayTeamGoals, inProgress });
+    try {
+      const createdMatch = await this.matchService
+        .create({ homeTeam, homeTeamGoals, awayTeam, awayTeamGoals, inProgress });
+      return res.status(201).json(createdMatch);
+    } catch (error) {
+      return res.status(404).json({ message: 'There is no team with such id!' });
+    }
+  };
 
-    return res.status(201).json(createdMatch);
+  public finish = async (req: Request, res: Response) => {
+    const { id } = req.params;
+
+    const matchFinished = await this.matchService.finish(Number(id));
+
+    return res.status(200).json(matchFinished);
   };
 }
 

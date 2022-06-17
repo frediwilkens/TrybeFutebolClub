@@ -8,6 +8,7 @@ import Match from '../database/models/match';
 
 import { Response } from 'superagent';
 import User from '../database/models/user';
+import Team from '../database/models/team';
 
 chai.use(chaiHttp);
 
@@ -140,6 +141,12 @@ describe('Matches', () => {
   
     before(async () => {
       sinon
+        .stub(Team, 'findByPk')
+        .resolves({ id: 16, teamName: 'homeTeste' } as Team)
+      sinon
+        .stub(Team, 'findOne')
+        .resolves({ id: 8, teamName: 'AwayTeste' } as Team)
+      sinon
         .stub(Match, 'create')
         .resolves({
           id: 1,
@@ -164,6 +171,8 @@ describe('Matches', () => {
     after(()=>{
       (Match.create as sinon.SinonStub).restore();
       (User.findOne as sinon.SinonStub).restore();
+      (Team.findOne as sinon.SinonStub).restore();
+      (Team.findByPk as sinon.SinonStub).restore();
     })
   
     it('É possível criar uma partida corretamente', async () => {
@@ -227,6 +236,193 @@ describe('Matches', () => {
 
       expect(chaiHttpResponse.status).to.be.equal(401);
       expect(chaiHttpResponse.body).to.have.property('message');
+    });
+  })
+
+  describe('POST /matches away team não cadastrada', () => {
+    let chaiHttpResponse: Response;
+    let chaiLoginData: Response;
+  
+    before(async () => {
+      sinon
+        .stub(Team, 'findOne')
+        .resolves(undefined);
+      sinon
+        .stub(Team, 'findByPk')
+        .resolves({ id: 1, teamName: 'teste' } as Team)
+      sinon
+        .stub(Match, 'create')
+        .resolves(undefined);
+      sinon
+        .stub(User, 'findOne')
+        .resolves({
+          id: 1,
+          username: 'admin',
+          email: 'admin@admin.com',
+          role: 'admin',
+          password: '$2a$04$M7hUZciSJWdhCiPsAWkpqeAT4gEAkgTBGnSG0CHyxrlM4Hw6i/4.i',
+        } as User);
+    });
+  
+    after(()=>{
+      (Match.create as sinon.SinonStub).restore();
+      (User.findOne as sinon.SinonStub).restore();
+      (Team.findOne as sinon.SinonStub).restore();
+      (Team.findByPk as sinon.SinonStub).restore();
+    })
+  
+    it('Não é possível cadastrar uma partida com um time não cadastrado', async () => {
+      chaiLoginData = await chai
+        .request(app)
+        .post('/login')
+        .send({
+          email: 'admin@admin.com',
+          password: 'secret_admin',
+        })
+
+      chaiHttpResponse = await chai
+          .request(app)
+          .post('/matches')
+          .set('authorization', chaiLoginData.body.token)
+          .send({
+            homeTeam: 1,
+            awayTeam: 96546,
+            homeTeamGoals: 99,
+            awayTeamGoals: 2,
+            inProgres: true,
+          })
+  
+      expect(chaiHttpResponse.body).to.be.have.property('message');
+      expect(chaiHttpResponse.body.message).to.be.equal('There is no team with such id!');
+    });
+  })
+
+  describe('POST /matches home team não cadastrada', () => {
+    let chaiHttpResponse: Response;
+    let chaiLoginData: Response;
+  
+    before(async () => {
+      sinon
+        .stub(Team, 'findOne')
+        .resolves({ id: 1, teamName: 'teste' } as Team);
+      sinon
+        .stub(Team, 'findByPk')
+        .resolves(undefined)
+      sinon
+        .stub(Match, 'create')
+        .resolves(undefined);
+      sinon
+        .stub(User, 'findOne')
+        .resolves({
+          id: 1,
+          username: 'admin',
+          email: 'admin@admin.com',
+          role: 'admin',
+          password: '$2a$04$M7hUZciSJWdhCiPsAWkpqeAT4gEAkgTBGnSG0CHyxrlM4Hw6i/4.i',
+        } as User);
+    });
+  
+    after(()=>{
+      (Match.create as sinon.SinonStub).restore();
+      (User.findOne as sinon.SinonStub).restore();
+      (Team.findOne as sinon.SinonStub).restore();
+      (Team.findByPk as sinon.SinonStub).restore();
+    })
+  
+    it('Não é possível cadastrar uma partida com um time não cadastrado', async () => {
+      chaiLoginData = await chai
+        .request(app)
+        .post('/login')
+        .send({
+          email: 'admin@admin.com',
+          password: 'secret_admin',
+        })
+
+      chaiHttpResponse = await chai
+          .request(app)
+          .post('/matches')
+          .set('authorization', chaiLoginData.body.token)
+          .send({
+            homeTeam: 3213132132123,
+            awayTeam: 1,
+            homeTeamGoals: 99,
+            awayTeamGoals: 2,
+            inProgres: true,
+          })
+  
+      expect(chaiHttpResponse.body).to.be.have.property('message');
+      expect(chaiHttpResponse.body.message).to.be.equal('There is no team with such id!');
+    });
+  })
+
+
+  describe('POST /matches teste de middleware', () => {
+    let chaiHttpResponse: Response;
+    let chaiLoginData: Response;
+
+    before(() => {
+      sinon
+        .stub(User, 'findOne')
+        .resolves({
+          id: 1,
+          username: 'admin',
+          email: 'admin@admin.com',
+          role: 'admin',
+          password: '$2a$04$M7hUZciSJWdhCiPsAWkpqeAT4gEAkgTBGnSG0CHyxrlM4Hw6i/4.i',
+        } as User);
+    })
+
+    after(()=>{
+      (User.findOne as sinon.SinonStub).restore();
+    })
+
+    it('Não é possível cadastrar uma partida com o mesmo time se enfrentando', async () => {
+      chaiLoginData = await chai
+        .request(app)
+        .post('/login')
+        .send({
+          email: 'admin@admin.com',
+          password: 'secret_admin',
+        })
+
+      chaiHttpResponse = await chai
+          .request(app)
+          .post('/matches')
+          .set('authorization', chaiLoginData.body.token)
+          .send({
+            homeTeam: 1,
+            awayTeam: 1,
+            homeTeamGoals: 99,
+            awayTeamGoals: 2,
+            inProgres: true,
+          })
+  
+      expect(chaiHttpResponse.body).to.be.have.property('message');
+      expect(chaiHttpResponse.body.message)
+        .to.be.equal('It is not possible to create a match with two equal teams');
+    });
+  })
+
+  describe('PATCH /matches/:id/finish', () => {
+    let chaiHttpResponse: Response;
+  
+    before(async () => {
+      sinon
+        .stub(Match, 'update')
+        .resolves(undefined);
+    });
+  
+    after(()=>{
+      (Match.update as sinon.SinonStub).restore();
+    })
+  
+    it('É possível finalizar uma partida em andamento', async () => {
+      chaiHttpResponse = await chai
+          .request(app)
+          .patch('/matches/41/finish')
+  
+      expect(chaiHttpResponse.body).to.be.have.property('message');
+      expect(chaiHttpResponse.body.message).to.be.equal('Finished');
     });
   })
 });

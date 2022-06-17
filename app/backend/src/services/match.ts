@@ -28,6 +28,12 @@ class MatchService {
 
   public create = async (match: MatchInProgress) => {
     const { homeTeam, homeTeamGoals, awayTeam, awayTeamGoals, inProgress } = match;
+
+    const foundHomeTeam = await Team.findByPk(homeTeam);
+    const foundAwayTeam = await Team.findOne({ where: { id: awayTeam } });
+
+    if (!foundHomeTeam || !foundAwayTeam) throw new Error('There is no team with such id!');
+
     const createdMatch = await Match.create({
       homeTeam,
       homeTeamGoals,
@@ -37,6 +43,16 @@ class MatchService {
     });
 
     return createdMatch;
+  };
+
+  public finish = async (id: number) => {
+    await Match.update({ inProgress: false }, {
+      where: {
+        id,
+      },
+    });
+
+    return { message: 'Finished' };
   };
 }
 
