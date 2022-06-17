@@ -425,5 +425,27 @@ describe('Matches', () => {
       expect(chaiHttpResponse.body.message).to.be.equal('Finished');
     });
   })
+
+  describe('PATCH /matches/:id', () => {
+    let chaiHttpResponse: Response;
+  
+    before(async () => {
+      sinon
+        .stub(Match, 'update')
+        .resolves(undefined);
+    });
+  
+    after(()=>{
+      (Match.update as sinon.SinonStub).restore();
+    })
+  
+    it('Ao editar uma partida em andamento retorna o status correto', async () => {
+      chaiHttpResponse = await chai
+          .request(app)
+          .patch('/matches/43')
+  
+      expect(chaiHttpResponse.status).to.be.equal(200);
+    });
+  })
 });
 

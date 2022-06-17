@@ -8,6 +8,7 @@ const matchController = new MatchController();
 
 matchRoutes.get('/', matchController.getAll);
 matchRoutes.post('/', authMiddleware, matchMiddleware, matchController.create);
+matchRoutes.patch('/:id', matchController.update);
 matchRoutes.patch('/:id/finish', matchController.finish);
 
 export default matchRoutes;
