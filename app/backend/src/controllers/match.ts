@@ -47,7 +47,7 @@ class MatchController {
 
     await this.matchService.update(Number(id), homeTeamGoals, awayTeamGoals);
 
-    return res.status(200).send('');
+    return res.status(200).json({ message: 'Gooooooooooooool!' });
   };
 }
 
