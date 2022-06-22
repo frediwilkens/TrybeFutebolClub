@@ -1,4 +1,4 @@
-export default interface MatchInProgress {
+export default interface MatchInterface {
   homeTeam: number;
   homeTeamGoals: number;
   awayTeam: number;
