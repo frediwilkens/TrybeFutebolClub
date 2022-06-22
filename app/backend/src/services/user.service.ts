@@ -3,7 +3,7 @@ import * as fs from 'fs/promises';
 import * as jwt from 'jsonwebtoken';
 import Token from '../utilities/Token';
 import User from '../database/models/user';
-import TokenPayload from '../interfaces/TokenPayload';
+import TokenPayload from '../interfaces/TokenPayload.interface';
 
 class UserService {
   public login = async (email: string, password: string) => {

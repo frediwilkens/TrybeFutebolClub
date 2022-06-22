@@ -1,8 +1,8 @@
 import SeasonData from '../utilities/SeasonData';
-import TeamSeason from '../interfaces/TeamSeason';
+import TeamSeason from '../interfaces/TeamSeason.interface';
 import Match from '../database/models/match';
-import MatchService from './match';
-import TeamService from './team';
+import MatchService from './match.service';
+import TeamService from './team.service';
 
 class LeaderboardService {
   public teamService: TeamService;

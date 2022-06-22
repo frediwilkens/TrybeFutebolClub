@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import LeaderboardService from '../services/leaderboard';
-import HomeLeaderboardService from '../services/homeLeaderboard';
-import AwayLeaderboardService from '../services/awayLeaderboard';
+import LeaderboardService from '../services/leaderboard.service';
+import HomeLeaderboardService from '../services/homeLeaderboard.service';
+import AwayLeaderboardService from '../services/awayLeaderboard.service';
 
 class LeaderboardController {
   public leaderboardService: LeaderboardService;

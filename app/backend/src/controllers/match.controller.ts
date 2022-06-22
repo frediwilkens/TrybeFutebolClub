@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import MatchService from '../services/match';
+import MatchService from '../services/match.service';
 
 class MatchController {
   matchService: MatchService;

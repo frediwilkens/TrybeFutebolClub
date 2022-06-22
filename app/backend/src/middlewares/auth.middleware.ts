@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import * as fs from 'fs/promises';
 import * as jwt from 'jsonwebtoken';
-import TokenPayload from '../interfaces/TokenPayload';
+import TokenPayload from '../interfaces/TokenPayload.interface';
 
 const authMiddleware = async (req: Request, res: Response, next: NextFunction) => {
   const superSecret = await fs.readFile('jwt.evaluation.key', 'utf-8');
